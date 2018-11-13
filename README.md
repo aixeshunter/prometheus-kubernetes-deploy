@@ -1,5 +1,5 @@
-# Monitoring Kubernetes  clusters on normal Linux server.
-
+Monitoring Kubernetes clusters on normal Linux server.
+===
 ## Custom settings
 
 All the components versions can be configured using the interactive deployment script. Same for the SMTP account or the Slack token.
