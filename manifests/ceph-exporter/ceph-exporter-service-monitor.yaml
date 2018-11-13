@@ -1,0 +1,18 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: ceph-exporter
+  labels:
+    k8s-app: ceph-exporter
+  namespace: kube-system
+spec:
+  jobLabel: k8s-app
+  selector:
+    matchLabels:
+      k8s-app: ceph-exporter
+  namespaceSelector:
+    matchNames:
+    - kube-system
+  endpoints:
+  - port: http-metrics
+    interval: 30s

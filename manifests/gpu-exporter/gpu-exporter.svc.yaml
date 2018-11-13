@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: gpu-exporter
+  labels:
+    k8s-app: gpu-exporter
+    app: gpu-exporter
+    kubernetes.io/cluster-service: "true"
+    kubernetes.io/name: "GPUExporter"
+  annotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "9470"
+spec:
+  type: ClusterIP
+  clusterIP: None
+  ports:
+  - name: http-metrics
+    port: 9470
+    protocol: TCP
+  selector:
+    app: gpu-exporter

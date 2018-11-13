@@ -1,0 +1,45 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: ceph-exporter
+spec:
+  selector:
+    matchLabels:
+      k8s-app: ceph-exporter
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        k8s-app: ceph-exporter
+        app: ceph-exporter
+      annotations:
+        scheduler.alpha.kubernetes.io/critical-pod: ""
+    spec:
+      tolerations:
+      - key: node-role.kubernetes.io/master
+        effect: NoSchedule
+      - key: "CriticalAddonsOnly"
+        operator: "Exists"
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: node-role.kubernetes.io/master
+                operator: Exists
+      hostNetwork: true
+      hostPID: true
+      containers:
+      - name: ceph-exporter
+        #from digitalocean/ceph_exporter:2.0.1-luminous
+        image: aixeshunter/ceph_exporter:2.0.1
+        ports:
+        - name: http-metrics
+          containerPort: 9128
+        volumeMounts:
+          - name: ceph-etc
+            mountPath: /etc/ceph
+      volumes:
+        - name: ceph-etc
+          configMap:
+            name: ceph-etc

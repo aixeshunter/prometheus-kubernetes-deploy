@@ -1,0 +1,46 @@
+---
+apiVersion: extensions/v1beta1
+kind: DaemonSet
+metadata:
+  name: gpu-exporter
+  labels:
+    k8s-app: gpu-exporter
+    app: gpu-exporter
+spec:
+  template:
+    metadata:
+      labels:
+        k8s-app: gpu-exporter
+        app: gpu-exporter
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: gpu_label  #if no gpu lable, delete this node affinity
+                operator: Exists
+      tolerations:
+        - effect: NoSchedule
+          operator: Exists
+      hostNetwork: true
+      hostPID: true
+      containers:
+      - name: gpu-exporter
+        image: aixeshunter/gpu-exporter:1.0.0
+        args: [
+          "run",
+          "-v", "5",
+          "--logtostderr",
+        ]
+        imagePullPolicy: Always
+        ports:
+          - containerPort: 9470
+            name: exporter
+        volumeMounts:
+          - mountPath: /etc/localtime
+            name: timezone
+      volumes:
+        - name: timezone
+          hostPath:
+            path: /etc/localtime

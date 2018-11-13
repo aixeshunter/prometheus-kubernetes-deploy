@@ -24,6 +24,16 @@ Now you can access the dashboards locally using `kubectl port-forward`command, o
 To remove everything, just execute the `./teardown` script.
 
 
+## Deploy other addon exporter
+
+If you want to monitor GPU device, GlusterFS Cluster or Ceph Cluster, the `yaml` files are in `manifests/ceph-exporter/`, `manifests/gluster-exporter/`, `manifests/gpu-exporter/`.
+
+You should create them manually.
+
+```sh
+kubectl apply -f manifests/(ceph|gluster|gpu)-exporter/*.yaml
+```
+
 ## Updating configurations
 
   * **update alert rules:** add or change the rules in `assets/prometheus/rules/` and execute `scripts/generate-rules-configmap.sh`. Then apply the changes using `kubectl apply -f manifests/prometheus/prometheus-k8s-rules.yaml -n monitoring`

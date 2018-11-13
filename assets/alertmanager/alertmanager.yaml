@@ -1,10 +1,10 @@
 global:
   resolve_timeout: 1m
-  smtp_hello: '127.0.0.1:95'
-  smtp_smarthost: '127.0.0.1:95'
-  smtp_from: 'aixes@gmail.com'
-  smtp_auth_username: 'aixes@gmail.com'
-  smtp_auth_password: 'password'
+  smtp_hello: 'your_smtp_smarthost'
+  smtp_smarthost: 'your_smtp_smarthost'
+  smtp_from: 'your_smtp_from'
+  smtp_auth_username: 'your_smtp_user'
+  smtp_auth_password: 'your_smtp_pass'
   smtp_require_tls: false
 templates:
 - '/etc/alertmanager/config/*.tmpl'
@@ -24,7 +24,7 @@ inhibit_rules:
 receivers:
 - name: 'default-receiver'
   email_configs:
-  - to: 'aixes@gmail.com'
+  - to: 'your_alert_email_address'
     send_resolved: false
     headers: { Subject: "[WARN] Alerts Email" }
     html: '{{ template "email.default.html" . }}'

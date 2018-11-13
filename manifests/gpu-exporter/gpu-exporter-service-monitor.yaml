@@ -1,0 +1,18 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: gpu-exporter
+  labels:
+    k8s-app: gpu-exporter
+  namespace: CUSTOM_NAMESPACE
+spec:
+  jobLabel: k8s-app
+  selector:
+    matchLabels:
+      k8s-app: gpu-exporter
+  namespaceSelector:
+    matchNames:
+    - CUSTOM_NAMESPACE
+  endpoints:
+  - port: http-metrics
+    interval: 30s

@@ -1,0 +1,51 @@
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: glusterfs-exporter
+  labels:
+    k8s-app: glusterfs-exporter
+    app: glusterfs-exporter
+spec:
+  selector:
+    matchLabels:
+      k8s-app: glusterfs-exporter
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        k8s-app: glusterfs-exporter
+        app: glusterfs-exporter
+      annotations:
+        scheduler.alpha.kubernetes.io/critical-pod: ""
+    spec:
+      tolerations:
+      - key: node-role.kubernetes.io/master
+        effect: NoSchedule
+      - key: "CriticalAddonsOnly"
+        operator: "Exists"
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: node-role.kubernetes.io/master
+                operator: Exists
+      hostNetwork: true
+      hostPID: true
+      containers:
+      - name: glusterfs-exporter
+        image: aixeshunter/gluster-exporter:v0.11
+        imagePullPolicy: Always
+        resources:
+          limits:
+            cpu: 150m
+            memory: 150Mi
+          requests:
+            cpu: 50m
+            memory: 50Mi
+        securityContext:
+          capabilities: {}
+          privileged: true
+        ports:
+          - containerPort: 9189
