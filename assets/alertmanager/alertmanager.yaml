@@ -1,0 +1,30 @@
+global:
+  resolve_timeout: 1m
+  smtp_hello: '127.0.0.1:95'
+  smtp_smarthost: '127.0.0.1:95'
+  smtp_from: 'aixes@gmail.com'
+  smtp_auth_username: 'aixes@gmail.com'
+  smtp_auth_password: 'password'
+  smtp_require_tls: false
+templates:
+- '/etc/alertmanager/config/*.tmpl'
+route:
+  group_by: ['alertname', 'cluster', 'service']
+  group_wait: 30s
+  group_interval: 10m
+  repeat_interval: 1h
+  receiver: default-receiver
+inhibit_rules:
+- source_match:
+    severity: 'critical'
+  target_match:
+    severity: 'warning'
+  # Apply inhibition if the alertname is the same.
+  equal: ['alertname', 'cluster', 'service']
+receivers:
+- name: 'default-receiver'
+  email_configs:
+  - to: 'aixes@gmail.com'
+    send_resolved: false
+    headers: { Subject: "[WARN] Alerts Email" }
+    html: '{{ template "email.default.html" . }}'
