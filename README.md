@@ -1,19 +1,17 @@
 Monitoring Kubernetes clusters on normal Linux server.
 ===
-## Custom settings
 
-All the components versions can be configured using the interactive deployment script. Same for the SMTP account or the Slack token.
+# Prometheus Deploy in k8s
 
-Some other settings that can be changed before deployment:
-  * **Prometheus replicas:** default **2** ==> `manifests/prometheus/prometheus-k8s.yaml`
-  * **persistent volume size:** default **40Gi** ==> `manifests/prometheus/prometheus-k8s.yaml`
-  * **allocated memory for Prometheus pods:** default **2Gi** ==> `manifests/prometheus/prometheus-k8s.yaml`
-  * **Alertmanager replicas:** default **3** ==> `manifests/alertmanager/alertmanager.yaml`
-  * **Alertmanager configuration:** ==> `assets/alertmanager/alertmanager.yaml`
-  * **custom Grafana dashboards:** add yours in `assets/grafana/` with names ending in `-dashboard.json`
-  * **custom alert rules:**  ==> `assets/prometheus/rules/`
+## Prometheus Summary
 
-**Note:** please commit your changes before deployment if you wish to keep them. The `deploy` script will remove the changes on most of the files.
+### Architecture
+
+![avatar](arch.png)
+
+### Sequence Chart
+
+![avatar](prometheus-sc.png)
 
 ## Deploy
 
@@ -41,7 +39,33 @@ kubectl apply -f manifests/(ceph|gluster|gpu)-exporter/*.yaml
 
 **Note:** all the Grafana dashboards should have names ending in `-dashboard.json`.
 
-## Custom Prometheus configuration
+## Custom settings
 
-  The official documentation for Prometheus Operator custom configuration can be found here: [custom-configuration.md](https://github.com/coreos/prometheus-operator/blob/master/Documentation/custom-configuration.md)
-  If you wish, you can update the Prometheus configuration using the `./tools/custom-configuration/update_config` script.
+All the components versions can be configured using the interactive deployment script. Same for the SMTP account or the Slack token.
+
+Some other settings that can be changed before deployment:
+  * **Prometheus replicas:** default **2** ==> `manifests/prometheus/prometheus-k8s.yaml`
+  * **persistent volume size:** default **40Gi** ==> `manifests/prometheus/prometheus-k8s.yaml`
+  * **allocated memory for Prometheus pods:** default **2Gi** ==> `manifests/prometheus/prometheus-k8s.yaml`
+  * **Alertmanager replicas:** default **3** ==> `manifests/alertmanager/alertmanager.yaml`
+  * **Alertmanager configuration:** ==> `assets/alertmanager/alertmanager.yaml`
+  * **custom Grafana dashboards:** add yours in `assets/grafana/` with names ending in `-dashboard.json`
+  * **custom alert rules:**  ==> `assets/prometheus/rules/`
+
+**Note:** please commit your changes before deployment if you wish to keep them. The `deploy` script will remove the changes on most of the files.
+
+## Prometheus Rules
+
+```yaml
+  - name: node-memory-usage
+    rules:
+    - alert: NodeMemoryUsageOvercommit
+      annotations:
+        summary: 'Overcommited Memory Usage Percnet on Node {{ $labels.instance }} for Some Time (current value: {{ printf "%.2f" $value }}%)'
+        description: 'High Node Memory Usage'
+      expr: instance:node_memory_utilisation:usage * 100 > 75.00         #PromQL expression
+      for: 5m
+      labels:
+        severity: critical                                               #alert level, can be user-defined
+        value: '{{ printf "%.2f" $value }}'
+```
