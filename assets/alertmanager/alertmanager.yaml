@@ -10,10 +10,21 @@ templates:
 - '/etc/alertmanager/config/*.tmpl'
 route:
   group_by: ['alertname', 'cluster', 'service']
-  group_wait: 30s
-  group_interval: 10m
+  group_wait: 60s
+  group_interval: 5m
   repeat_interval: 1h
-  receiver: default-receiver
+  receiver: 'default-receiver'
+  routes:
+  - receiver: 'webhook'
+    group_wait: 30s
+    group_interval: 1m
+    repeat_interval: 1h
+    match_re:
+      resource_type: node
+    continue: true
+  - receiver: 'default-receiver'
+    match_re:
+      resource_type: node|service
 inhibit_rules:
 - source_match:
     severity: 'critical'
@@ -28,3 +39,7 @@ receivers:
     send_resolved: false
     headers: { Subject: "[WARN] Alerts Email" }
     html: '{{ template "email.default.html" . }}'
+- name: 'webhook'
+  webhook_configs:
+  - url: 'http://alert-queen:5000/alerts'  #Look at https://github.com/aixeshunter/alertmanager-webhook
+    send_resolved: true
